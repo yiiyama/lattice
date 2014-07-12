@@ -18,7 +18,7 @@ namespace lattice {
     derivatives_.resize(1);
     trialDerivatives_.resize(1);
 
-    for(Coordinate coord(getCoord(0)); coord.isValid(); ++coord){
+    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next()){
       values_[coord] = 0.;
       derivatives_[0][coord] = 0.;
     }
@@ -39,13 +39,13 @@ namespace lattice {
   Coordinate
   Particle::getCoord(unsigned _index) const
   {
-    int lows[2] = {1, 0};
+    int lows[2] = {0, 0};
     int highs[2];
-    highs[0] = nT_ - 2;
+    highs[0] = nT_ - 1;
     highs[1] = nD_ - 1;
 
     Coordinate coord(2, lows, lows, highs);
-    for(unsigned i(0); i != _index; ++i) ++coord;
+    for(unsigned i(0); i != _index; ++i) coord.next();
     return coord;
   }
 

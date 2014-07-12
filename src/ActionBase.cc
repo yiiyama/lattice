@@ -5,6 +5,7 @@ namespace lattice {
   ActionBase::ActionBase(PhysicsBase* _obj) :
     obj_(_obj)
   {
+    obj_->initialize();
   }
 
   ActionBase::~ActionBase()

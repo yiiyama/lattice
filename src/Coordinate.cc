@@ -72,7 +72,7 @@ namespace lattice {
   }
 
   Coordinate&
-  Coordinate::operator++()
+  Coordinate::next()
   {
     unsigned iD(0);
     for(; iD != ndim_ - 1; ++iD){
@@ -89,7 +89,7 @@ namespace lattice {
   }
 
   Coordinate&
-  Coordinate::operator--()
+  Coordinate::prev()
   {
     unsigned iD(0);
     for(; iD != ndim_ - 1; ++iD){
@@ -134,6 +134,29 @@ namespace lattice {
     coords_[_axis] += _d;
     
     return *this;
+  }
+
+  Coordinate&
+  Coordinate::moveTo(int _t, int _x/* = 0*/, int _y/* = 0*/, int _z/* = 0*/)
+  {
+    coords_[0] = _t;
+    coords_[1] = _x;
+    coords_[2] = _y;
+    coords_[3] = _z;
+
+    return *this;
+  }
+
+  bool
+  Coordinate::atLowEdge(unsigned _iD) const
+  {
+    return coords_[_iD] == lows_[_iD];
+  }
+
+  bool
+  Coordinate::atHighEdge(unsigned _iD) const
+  {
+    return coords_[_iD] == highs_[_iD];
   }
 
   bool

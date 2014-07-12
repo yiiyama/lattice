@@ -21,10 +21,13 @@ namespace lattice {
       fvalues_()
     {
       configurations_->Branch("L", &Lvalue_, "L/D");
-      for(Coordinate coord(L_->getObj()->getCoord(0)); coord.isValid(); ++coord){
+      for(Coordinate coord(L_->getObj()->getCoord(0)); coord.isValid(); coord.next())
         fvalues_.push_back(0.);
+
+      unsigned iF(0);
+      for(Coordinate coord(L_->getObj()->getCoord(0)); coord.isValid(); coord.next()){
         std::string name(coord.getName());
-        configurations_->Branch(name.c_str(), &(fvalues_.back()), (name + "/D").c_str());
+        configurations_->Branch(name.c_str(), &(fvalues_[iF++]), (name + "/D").c_str());
       }
     }
     ~Output()
@@ -37,7 +40,7 @@ namespace lattice {
       Lvalue_ = L_->eval();
       PhysicsBase const* obj(L_->getObj());
       unsigned iX(0);
-      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); ++coord)
+      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); coord.next())
         fvalues_[iX++] = obj->getVal(coord);
 
       configurations_->Fill();
@@ -82,6 +85,8 @@ namespace lattice {
     Output output(outputName_, L_);
 
     PhysicsBase* obj(L_->getObj());
+
+    std::cout << "Initializing the lattice" << std::endl;
    
     obj->randomize(rand, df_);
 
@@ -92,15 +97,22 @@ namespace lattice {
     unsigned nTrial(0);
     unsigned nAccept(0);
 
+    std::cout << "Thermalizing the system" << std::endl;
+    bool thermalized(false);
+
     for(unsigned iSweep(0); iSweep != nSweeps_; ++iSweep){
-      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); ++coord){
-        ++nTrial;
+      if(iSweep % 1000 == 0) (std::cout << "\r" << iSweep).flush();
+      
+      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); coord.next()){
+        if(obj->isFixed(coord)) continue;
+        
+        if(thermalized) ++nTrial;
 
         obj->trial(coord, rand.Uniform(-df_, df_));
         double trial(L_->eval());
 
         if(std::exp(lval - trial) > rand.Uniform(0., 1.)){
-          ++nAccept;
+          if(thermalized) ++nAccept;
           obj->update();
           lval = trial;
         }
@@ -109,9 +121,14 @@ namespace lattice {
       }
 
       if(iSweep < nTherm_) continue;
+      if(!thermalized){
+        std::cout << std::endl << "Start data taking" << std::endl;
+        thermalized = true;
+      }
 
       if(iSweep % fillInterval_ == 0) output.fill();
     }
+    std::cout << std::endl;
 
     std::cout << "acceptance = " << (double(nAccept) / nTrial) << std::endl;
 

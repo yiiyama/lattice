@@ -25,10 +25,14 @@ namespace lattice {
 
     std::string getName() const;
 
-    Coordinate& operator++();
-    Coordinate& operator--();
+    Coordinate& next();
+    Coordinate& prev();
     Coordinate& move(char, int);
     Coordinate& move(unsigned, int);
+    Coordinate& moveTo(int, int = 0, int = 0, int = 0);
+
+    bool atLowEdge(unsigned) const;
+    bool atHighEdge(unsigned) const;
 
     bool operator<(Coordinate const&) const;
     bool operator==(Coordinate const&) const;

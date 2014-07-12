@@ -8,7 +8,8 @@ namespace lattice {
     values_(),
     derivatives_(),
     trialValues_(),
-    trialDerivatives_()
+    trialDerivatives_(),
+    fixedPoints_()
   {
     std::fill_n(scaleInv_, Coordinate::MAXDIM, 1.);
   }
@@ -18,14 +19,32 @@ namespace lattice {
   }
 
   void
+  PhysicsBase::initialize()
+  {
+    values_.clear();
+    for(unsigned iD(0); iD != derivatives_.size(); ++iD)
+      derivatives_[iD].clear();
+    
+    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next()){
+      values_[coord] = 0.;
+      for(unsigned iD(0); iD != derivatives_.size(); ++iD)
+        derivatives_[iD][coord] = 0.;
+    }
+
+    clearTrial();
+
+    fixedPoints_.clear();
+  }
+
+  void
   PhysicsBase::randomize(TRandom& _rand, double _df)
   {
     clearTrial();
 
-    for(Coordinate coord(getCoord(0)); coord.isValid(); ++coord)
-      values_[coord] = _rand.Uniform(-_df, _df);
+    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next())
+      if(!isFixed(coord)) values_[coord] = _rand.Uniform(-_df, _df);
 
-    for(Coordinate coord(getCoord(0)); coord.isValid(); ++coord){
+    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next()){
       for(unsigned iD(0); iD != derivatives_.size(); ++iD)
         derivatives_[iD][coord] = calculateDerivative_(coord, iD, scaleInv_[iD]);
     }
@@ -66,6 +85,13 @@ namespace lattice {
       trialDerivatives_[iD].clear();
   }
 
+  void
+  PhysicsBase::setBoundaryCondition(Coordinate const& _coord, double _value)
+  {
+    values_[_coord] = _value;
+    fixedPoints_.insert(_coord);
+  }
+
   double
   PhysicsBase::getVal(Coordinate const& _coord) const
   {
@@ -74,7 +100,7 @@ namespace lattice {
     
     vItr = values_.find(_coord);
     if(vItr == values_.end())
-      throw std::runtime_error("Invalid coordinate");
+      throw std::runtime_error(("Invalid coordinate " + _coord.getName()).c_str());
 
     return vItr->second;
   }
@@ -87,7 +113,7 @@ namespace lattice {
 
     vItr = derivatives_[_iD].find(_coord);
     if(vItr == derivatives_[_iD].end())
-      throw std::runtime_error("Invalid coordinate");
+      throw std::runtime_error(("Invalid coordinate" + _coord.getName()).c_str());
 
     return vItr->second;
   }
@@ -96,9 +122,21 @@ namespace lattice {
   PhysicsBase::calculateDerivative_(Coordinate const& _coord, unsigned _iD, double _dxinv) const
   {
     Coordinate coord(_coord);
-    double xplus(getVal(coord.move(_iD, 1)));
-    double xminus(getVal(coord.move(_iD, -2)));
-    return (xplus - xminus) * 0.5 * _dxinv;
+    if(coord.atLowEdge(_iD)){
+      double v(getVal(coord));
+      double vplus(getVal(coord.move(_iD, 1)));
+      return (vplus - v) * _dxinv;
+    }
+    else if(coord.atHighEdge(_iD)){
+      double v(getVal(coord));
+      double vminus(getVal(coord.move(_iD, -1)));
+      return (v - vminus) * _dxinv;
+    }
+    else{
+      double vplus(getVal(coord.move(_iD, 1)));
+      double vminus(getVal(coord.move(_iD, -2)));
+      return (vplus - vminus) * 0.5 * _dxinv;
+    }
   }
 
 }
