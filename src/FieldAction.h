@@ -8,7 +8,7 @@ namespace lattice {
 
   class FieldAction : public ActionBase {
   public:
-    FieldAction(PhysicsBase*);
+    FieldAction(FieldBase*);
     ~FieldAction();
   };
 

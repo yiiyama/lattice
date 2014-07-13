@@ -38,7 +38,7 @@ namespace lattice {
     void fill()
     {
       Lvalue_ = L_->eval();
-      PhysicsBase const* obj(L_->getObj());
+      FieldBase const* obj(L_->getObj());
       unsigned iX(0);
       for(Coordinate coord(obj->getCoord(0)); coord.isValid(); coord.next())
         fvalues_[iX++] = obj->getVal(coord);
@@ -84,7 +84,7 @@ namespace lattice {
 
     Output output(outputName_, L_);
 
-    PhysicsBase* obj(L_->getObj());
+    FieldBase* obj(L_->getObj());
 
     std::cout << "Initializing the lattice" << std::endl;
    

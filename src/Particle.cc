@@ -33,7 +33,7 @@ namespace lattice {
   double
   Particle::getDerivative(Coordinate const& _coord, unsigned) const
   {
-    return PhysicsBase::getDerivative(_coord, 0);
+    return FieldBase::getDerivative(_coord, 0);
   }
 
   Coordinate

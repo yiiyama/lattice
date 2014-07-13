@@ -1,13 +1,13 @@
 #ifndef Particle_h
 #define Particle_h
 
-#include "PhysicsBase.h"
+#include "FieldBase.h"
 
 #include <vector>
 
 namespace lattice {
 
-  class Particle : public PhysicsBase {
+  class Particle : public FieldBase {
   public:
     Particle(unsigned, unsigned, double);
     ~Particle();

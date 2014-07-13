@@ -5,7 +5,7 @@
 #pragma link C++ namespace lattice;
 #pragma link C++ class lattice::LatticeSimulation;
 #pragma link C++ class lattice::Coordinate;
-#pragma link C++ class lattice::PhysicsBase;
+#pragma link C++ class lattice::FieldBase;
 #pragma link C++ class lattice::Particle;
 #pragma link C++ class lattice::Field;
 #pragma link C++ class lattice::ActionBase;

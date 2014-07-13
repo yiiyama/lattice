@@ -2,7 +2,7 @@
 
 namespace lattice {
 
-  ActionBase::ActionBase(PhysicsBase* _obj) :
+  ActionBase::ActionBase(FieldBase* _obj) :
     obj_(_obj)
   {
     obj_->initialize();
@@ -30,7 +30,7 @@ namespace lattice {
   }
 
   ActionBase*
-  getAction(char const* _name, PhysicsBase* _obj)
+  getAction(char const* _name, FieldBase* _obj)
   {
     return (*ActionFactoryStore::singleton()->get(_name))(_obj);
   }

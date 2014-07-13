@@ -2,7 +2,7 @@
 
 namespace lattice {
   
-  FieldAction::FieldAction(PhysicsBase* _obj) :
+  FieldAction::FieldAction(FieldBase* _obj) :
     ActionBase(dynamic_cast<Field*>(_obj))
   {
     if(!_obj)

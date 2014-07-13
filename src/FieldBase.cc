@@ -1,10 +1,10 @@
-#include "PhysicsBase.h"
+#include "FieldBase.h"
 
 #include <stdexcept>
 
 namespace lattice {
 
-  PhysicsBase::PhysicsBase() :
+  FieldBase::FieldBase() :
     values_(),
     derivatives_(),
     trialValues_(),
@@ -14,12 +14,12 @@ namespace lattice {
     std::fill_n(scaleInv_, Coordinate::MAXDIM, 1.);
   }
 
-  PhysicsBase::~PhysicsBase()
+  FieldBase::~FieldBase()
   {
   }
 
   void
-  PhysicsBase::initialize()
+  FieldBase::initialize()
   {
     values_.clear();
     for(unsigned iD(0); iD != derivatives_.size(); ++iD)
@@ -37,7 +37,7 @@ namespace lattice {
   }
 
   void
-  PhysicsBase::randomize(TRandom& _rand, double _df)
+  FieldBase::randomize(TRandom& _rand, double _df)
   {
     clearTrial();
 
@@ -51,7 +51,7 @@ namespace lattice {
   }
 
   void
-  PhysicsBase::trial(Coordinate const& _coord, double _value)
+  FieldBase::trial(Coordinate const& _coord, double _value)
   {
     trialValues_[_coord] = _value;
     for(unsigned iD(0); iD != derivatives_.size(); ++iD){
@@ -65,7 +65,7 @@ namespace lattice {
   }
 
   void
-  PhysicsBase::update()
+  FieldBase::update()
   {
     for(VMItr vItr(trialValues_.begin()); vItr != trialValues_.end(); ++vItr)
       values_[vItr->first] = vItr->second;
@@ -78,7 +78,7 @@ namespace lattice {
   }
 
   void
-  PhysicsBase::clearTrial()
+  FieldBase::clearTrial()
   {
     trialValues_.clear();
     for(unsigned iD(0); iD != trialDerivatives_.size(); ++iD)
@@ -86,14 +86,14 @@ namespace lattice {
   }
 
   void
-  PhysicsBase::setBoundaryCondition(Coordinate const& _coord, double _value)
+  FieldBase::setBoundaryCondition(Coordinate const& _coord, double _value)
   {
     values_[_coord] = _value;
     fixedPoints_.insert(_coord);
   }
 
   double
-  PhysicsBase::getVal(Coordinate const& _coord) const
+  FieldBase::getVal(Coordinate const& _coord) const
   {
     VMItr vItr(trialValues_.find(_coord));
     if(vItr != trialValues_.end()) return vItr->second;
@@ -106,7 +106,7 @@ namespace lattice {
   }
 
   double
-  PhysicsBase::getDerivative(Coordinate const& _coord, unsigned _iD) const
+  FieldBase::getDerivative(Coordinate const& _coord, unsigned _iD) const
   {
     VMItr vItr(trialDerivatives_[_iD].find(_coord));
     if(vItr != trialDerivatives_[_iD].end()) return vItr->second;
@@ -119,7 +119,7 @@ namespace lattice {
   }
 
   double
-  PhysicsBase::calculateDerivative_(Coordinate const& _coord, unsigned _iD, double _dxinv) const
+  FieldBase::calculateDerivative_(Coordinate const& _coord, unsigned _iD, double _dxinv) const
   {
     Coordinate coord(_coord);
     if(coord.atLowEdge(_iD)){

@@ -4,7 +4,7 @@
 
 namespace lattice {
   
-  ParticleAction::ParticleAction(PhysicsBase* _obj) :
+  ParticleAction::ParticleAction(FieldBase* _obj) :
     ActionBase(_obj),
     particle_(dynamic_cast<Particle*>(_obj))
   {

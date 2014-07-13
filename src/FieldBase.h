@@ -1,5 +1,5 @@
-#ifndef PhysicsBase_h
-#define PhysicsBase_h
+#ifndef FieldBase_h
+#define FieldBase_h
 
 #include "Coordinate.h"
 
@@ -10,10 +10,10 @@
 
 namespace lattice {
 
-  class PhysicsBase {
+  class FieldBase {
   public:
-    PhysicsBase();
-    virtual ~PhysicsBase();
+    FieldBase();
+    virtual ~FieldBase();
 
     void initialize();
     virtual void randomize(TRandom&, double);
@@ -30,6 +30,8 @@ namespace lattice {
     virtual Coordinate getCoord(unsigned) const = 0;
     virtual Coordinate* getCoordObject(unsigned _idx) const { return new Coordinate(getCoord(_idx)); }
     bool isFixed(Coordinate const& _coord) const { return fixedPoints_.find(_coord) != fixedPoints_.end(); }
+
+    double getScaleInv(unsigned _iD) const { return scaleInv_[_iD]; }
 
     typedef std::map<Coordinate, double> ValueMap;
     typedef std::map<Coordinate, double>::const_iterator VMItr;

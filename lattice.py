@@ -34,11 +34,11 @@ try:
     nT = int(config['nT'])
     nX = int(config['nX'])
     if spatialDim == 0:
-        physObj = ROOT.lattice.Particle(int(config['nT']), int(config['nX']), float(config['dt']))
+        field = ROOT.lattice.Particle(int(config['nT']), int(config['nX']), float(config['dt']))
     else:
-        physObj = ROOT.lattice.Field(int(config['dim']), int(config['nT']), int(config['nX']))
+        field = ROOT.lattice.Field(int(config['dim']), int(config['nT']), int(config['nX']))
 
-    lagrangian = ROOT.lattice.getAction(config['lagrangian'], physObj)
+    lagrangian = ROOT.lattice.getAction(config['lagrangian'], field)
     if 'parameters' in config:
         iP = 0
         for p in config['parameters'].split():
@@ -48,31 +48,31 @@ try:
     if 'BC' in config:
         if config['BC'] == 'Vanish':
             if spatialDim == 0:
-                coord = physObj.getCoordObject(0)
+                coord = field.getCoordObject(0)
                 for iX in range(nX):
                     coord.moveTo(0, iX)
-                    physObj.setBoundaryCondition(coord, 0.)
+                    field.setBoundaryCondition(coord, 0.)
                     coord.moveTo(nT - 1, iX)
-                    physObj.setBoundaryCondition(coord, 0.)
+                    field.setBoundaryCondition(coord, 0.)
 
             else:
                 for iD in range(1 + spatialDim):
-                    coord = physObj.getCoordObject(0)
+                    coord = field.getCoordObject(0)
                     while coord.isValid():
                         if coord[iD] == 0 or coord[iD] == nX - 1:
-                            physObj.setBoundaryCondition(coord, 0.)
+                            field.setBoundaryCondition(coord, 0.)
 
                         coord.next()
 
         else:
             # form '(t,x,..):val '
             conds = config['BC'].split()
-            coord = physObj.getCoordObject(0)
+            coord = field.getCoordObject(0)
             for cond in conds:
                 coordt = eval(cond.partition(':')[0])
                 coord.moveTo(*coordt)
                 if coord.isValid():
-                    physObj.setBoundaryCondition(coord, float(cond.partition(':')[2]))
+                    field.setBoundaryCondition(coord, float(cond.partition(':')[2]))
     
     main = ROOT.lattice.LatticeSimulation(lagrangian)
 

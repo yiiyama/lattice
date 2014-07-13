@@ -1,7 +1,7 @@
 #ifndef ActionBase_h
 #define ActionBase_h
 
-#include "PhysicsBase.h"
+#include "FieldBase.h"
 
 #include <map>
 #include <string>
@@ -11,22 +11,22 @@ namespace lattice {
   
   class ActionBase {
   public:
-    ActionBase(PhysicsBase*);
+    ActionBase(FieldBase*);
     virtual ~ActionBase();
 
-    PhysicsBase* getObj() const { return obj_; }
+    FieldBase* getObj() const { return obj_; }
     virtual double eval() const = 0;
 
     virtual void setParameter(unsigned, double) {}
 
   protected:
-    PhysicsBase* obj_;
+    FieldBase* obj_;
   };
 
   class ActionFactoryStore {
   public:
     struct FactoryBase {
-      virtual ActionBase* operator()(PhysicsBase*) const = 0;
+      virtual ActionBase* operator()(FieldBase*) const = 0;
     };
 
     template<typename L>
@@ -35,7 +35,7 @@ namespace lattice {
       {
         ActionFactoryStore::singleton()->registerFactory(_name, this);
       }
-      ActionBase* operator()(PhysicsBase* _obj) const
+      ActionBase* operator()(FieldBase* _obj) const
       {
         return new L(_obj);
       }
@@ -64,7 +64,7 @@ namespace lattice {
     std::map<std::string, const FactoryBase*> store_;
   };
 
-  ActionBase* getAction(char const*, PhysicsBase*);
+  ActionBase* getAction(char const*, FieldBase*);
 }
 
 #define DEFINE_ACTION(TYPE) \
