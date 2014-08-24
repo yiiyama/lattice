@@ -22,7 +22,7 @@ namespace lattice {
     void setSeed(int _s) { seed_ = _s; }
 
   private:
-    ActionBase* L_;
+    ActionBase* action_;
 
     unsigned nSweeps_;
     unsigned nTherm_;

@@ -1,4 +1,5 @@
 #include "../src/FieldAction.h"
+#include "../src/Field.h"
 
 namespace lattice {
 
@@ -7,7 +8,7 @@ namespace lattice {
     QuarticPotential(FieldBase*);
     ~QuarticPotential();
 
-    double eval() const;
+    double dS(Coordinate const&, bool = false) const;
 
     void setParameter(unsigned, double);
 
@@ -23,4 +24,40 @@ namespace lattice {
   {
   }
 
+  QuarticPotential::~QuarticPotential()
+  {
+  }
+
+  double
+  QuarticPotential::dS(Coordinate const& _coord, bool _trial/* = false*/) const
+  {
+    // L = 0.5 * dphi^2 - 0.5 * mu2 * phi^2 - lambda * phi^4
+
+    Field const& field(*static_cast<Field const*>(obj_));
+
+    double phi(field.getVal(_coord, _trial));
+    double phi2(phi * phi);
+    double sumDphi2(0.);
+    for(unsigned iD(0); iD != field.getNDim(); ++iD){
+      double dphi(field.getDerivative(_coord, iD, _trial));
+      sumDphi2 += dphi * dphi;
+    }
+    return 0.5 * sumDphi2 - 0.5 * mu2_ * phi2 - lambda_ * phi2 * phi2;
+  }
+  
+  void
+  QuarticPotential::setParameter(unsigned _idx, double _val)
+  {
+    switch(_idx){
+    case 0:
+      mu2_ = _val;
+      break;
+    case 1:
+      lambda_ = _val;
+      break;
+    }
+  }
+
+  DEFINE_LATTICE_ACTION(QuarticPotential);
+    
 }

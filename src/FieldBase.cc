@@ -12,7 +12,8 @@ namespace lattice {
     derivatives_(),
     trialValues_(),
     trialDerivatives_(),
-    firstCoord_(),
+    bounds_(),
+    firstCoord_(bounds_),
     fixedPoints_()
   {
   }
@@ -61,6 +62,7 @@ namespace lattice {
       Coordinate coord(_coord);
       coord.move(iD, -1);
       for(unsigned iX(0); iX != 3; ++iX){
+        if(coord != _coord) trialValues_[coord] = getVal(coord, false);
         trialDerivatives_[iD][coord] = calculateDerivative_(coord, iD);
         coord.move(iD, +1);
       }
@@ -96,29 +98,46 @@ namespace lattice {
   }
 
   double
-  FieldBase::getVal(Coordinate const& _coord) const
+  FieldBase::getVal(Coordinate const& _coord, bool _trial/* = false*/) const
   {
-    VMItr vItr(trialValues_.find(_coord));
-    if(vItr != trialValues_.end()) return vItr->second;
-    
-    vItr = values_.find(_coord);
-    if(vItr == values_.end())
-      throw std::runtime_error(("Invalid coordinate " + _coord.getName()).c_str());
+    ValueMap const* map(_trial ? &trialValues_ : &values_);
 
-    return vItr->second;
+    VMItr vItr(map->find(_coord));
+    if(vItr != map->end()) return vItr->second;
+
+    if(_trial){
+      map = &values_;
+      vItr = map->find(_coord);
+      if(vItr != map->end()) return vItr->second;
+    }
+
+    throw std::runtime_error(("Invalid coordinate " + _coord.getName()).c_str());
   }
 
   double
-  FieldBase::getDerivative(Coordinate const& _coord, unsigned _iD) const
+  FieldBase::getDerivative(Coordinate const& _coord, unsigned _iD, bool _trial/* = false*/) const
   {
-    VMItr vItr(trialDerivatives_[_iD].find(_coord));
-    if(vItr != trialDerivatives_[_iD].end()) return vItr->second;
+    ValueMap const* map(_trial ? &trialDerivatives_[_iD] : &derivatives_[_iD]);
 
-    vItr = derivatives_[_iD].find(_coord);
-    if(vItr == derivatives_[_iD].end())
-      throw std::runtime_error(("Invalid coordinate" + _coord.getName()).c_str());
+    VMItr vItr(map->find(_coord));
+    if(vItr != map->end()) return vItr->second;
 
-    return vItr->second;
+    if(_trial){
+      map = &derivatives_[_iD];
+      vItr = map->find(_coord);
+      if(vItr != map->end()) return vItr->second;
+    }
+
+    throw std::runtime_error(("Invalid coordinate " + _coord.getName()).c_str());
+  }
+
+  CoordSet
+  FieldBase::getTrialCoordinates() const
+  {
+    CoordSet set;
+    for(VMItr vItr(trialValues_.begin()); vItr != trialValues_.end(); ++vItr)
+      set.insert(vItr->first);
+    return set;
   }
 
   double
@@ -128,18 +147,18 @@ namespace lattice {
     
     Coordinate coord(_coord);
     if(coord.atLowEdge(_iD)){
-      double v(getVal(coord));
-      double vplus(getVal(coord.move(_iD, 1)));
+      double v(getVal(coord, true));
+      double vplus(getVal(coord.move(_iD, 1), true));
       deriv = (vplus - v);
     }
     else if(coord.atHighEdge(_iD)){
-      double v(getVal(coord));
-      double vminus(getVal(coord.move(_iD, -1)));
+      double v(getVal(coord, true));
+      double vminus(getVal(coord.move(_iD, -1), true));
       deriv = (v - vminus);
     }
     else{
-      double vplus(getVal(coord.move(_iD, 1)));
-      double vminus(getVal(coord.move(_iD, -2)));
+      double vplus(getVal(coord.move(_iD, 1), true));
+      double vminus(getVal(coord.move(_iD, -2), true));
       deriv = (vplus - vminus) * 0.5;
     }
 

@@ -48,7 +48,7 @@ try:
     if 'BC' in config:
         if config['BC'] == 'Vanish':
             if spatialDim == 0:
-                coord = ROOT.lattice.Coordinate(field.getCoord())
+                coord = field.getCoordObject()
                 for iX in range(nX):
                     coord.moveTo(0, iX)
                     field.setBoundaryCondition(coord, 0.)
@@ -57,7 +57,7 @@ try:
 
             else:
                 for iD in range(1 + spatialDim):
-                    coord = ROOT.lattice.Coordinate(field.getCoord())
+                    coord = field.getCoordObject()
                     while coord.isValid():
                         if coord[iD] == 0 or coord[iD] == nX - 1:
                             field.setBoundaryCondition(coord, 0.)
@@ -67,7 +67,7 @@ try:
         else:
             # form '(t,x,..):val '
             conds = config['BC'].split()
-            coord = ROOT.lattice.Coordinate(field.getCoord())
+            coord = field.getCoordObject()
             for cond in conds:
                 coordt = eval(cond.partition(':')[0])
                 coord.moveTo(*coordt)

@@ -12,7 +12,8 @@ namespace lattice {
     Particle(unsigned, unsigned, double);
     ~Particle();
 
-    double getDerivative(Coordinate const&, unsigned) const;
+    double getDerivative(Coordinate const& _coord, unsigned, bool _trial = false) const { return FieldBase::getDerivative(_coord, 0, _trial); }
+    double getDerivative(Coordinate const& _coord, bool _trial = false) const { return FieldBase::getDerivative(_coord, 0, _trial); }
   };
 
 }

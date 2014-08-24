@@ -3,7 +3,7 @@ sys.argv = ['', '-b']
 import ROOT
 
 canvas = ROOT.TCanvas('c1', 'c1')
-source = ROOT.TFile('/tmp/yiiyama/HarmonicOscillator.root')
+source = ROOT.TFile('/tmp/yiiyama/FreeParticle.root')
 tree = source.Get('config')
 
 pos = ROOT.TGraphErrors(20)

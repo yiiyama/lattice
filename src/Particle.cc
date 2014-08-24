@@ -11,12 +11,12 @@ namespace lattice {
     // Coordinate object will only have time and one "spatial" dimension.
     // The latter is simply an n-valued (0, 1, 2, ..) index for the spatial axis
     // Nevertheless we require the same maximum dimensions as in the case for fields, just for convenience.
-    if(nX_ > Coordinate::MAXDIM - 1)
+    if(nX_ > MAXDIM - 1)
       throw std::runtime_error("Too many dimensions");
 
-    int init[2] = {0, 0};
-    int highs[2] = {nT_ - 1, nX_ - 1};
-    firstCoord_.set(2, init, highs);
+    bounds_.ndim = 2;
+    bounds_.max[0] = nT_ - 1;
+    bounds_.max[1] = nX_ - 1;
     
     derivatives_.resize(1);
     trialDerivatives_.resize(1);
@@ -29,12 +29,6 @@ namespace lattice {
 
   Particle::~Particle()
   {
-  }
-
-  double
-  Particle::getDerivative(Coordinate const& _coord, unsigned) const
-  {
-    return FieldBase::getDerivative(_coord, 0);
   }
 
 }

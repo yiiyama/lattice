@@ -1,4 +1,5 @@
 #include "../src/ParticleAction.h"
+#include "../src/Particle.h"
 
 namespace lattice {
   
@@ -7,7 +8,7 @@ namespace lattice {
     HarmonicOscillator(FieldBase*);
     ~HarmonicOscillator();
 
-    double eval() const;
+    double dS(Coordinate const&, bool = false) const;
 
     void setParameter(unsigned, double _p) { omegaDt_ = _p; }
 
@@ -26,22 +27,17 @@ namespace lattice {
   }
 
   double
-  HarmonicOscillator::eval() const
+  HarmonicOscillator::dS(Coordinate const& _coord, bool _trial/* = false*/) const
   {
-    Particle const& particle(*static_cast<Particle const*>(obj_));
-    
-    // S = sumT [0.5 * dxdt^2 + 0.5 * omega^2 x^2]
-    double S(0.);
-    for(Coordinate coord(particle.getCoord()); coord.isValid(); coord.next()){
-      double omegaX(particle.getVal(coord) * omegaDt_ * particle.getDxdt());
-      S += omegaX * omegaX;
-      double dxdt(particle.getDerivative(coord, 0));
-      S += dxdt * dxdt;
-    }
+    // S = sumT [0.5 * v^2 + 0.5 * omega^2 x^2]
 
-    return 0.5 * S;
+    Particle const& particle(*static_cast<Particle const*>(obj_));
+
+    double v(particle.getDerivative(_coord, _trial));
+    double omegaX(particle.getVal(_coord, _trial) * omegaDt_ * particle.getDxdt());
+    return 0.5 * v * v + 0.5 * omegaX * omegaX;
   }
 
-  DEFINE_ACTION(HarmonicOscillator);
+  DEFINE_LATTICE_ACTION(HarmonicOscillator);
 
 }

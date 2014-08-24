@@ -5,20 +5,18 @@
 #include <cstdio>
 
 namespace lattice {
-
-  Coordinate::Coordinate()
-  {
-    set(0, 0, 0);
-  }
   
-  Coordinate::Coordinate(unsigned _ndim, int const* _coords, int const* _highs)
+  Coordinate::Coordinate(Bounds const& _bounds) :
+    bounds_(&_bounds)
   {
-    set(_ndim, _coords, _highs);
+    std::fill_n(coords_, MAXDIM, 0);
   }
 
-  Coordinate::Coordinate(Coordinate const& _orig)
+  Coordinate::Coordinate(Coordinate const& _orig) :
+    bounds_(_orig.bounds_)
   {
-    set(_orig.ndim_, _orig.coords_, _orig.highs_);
+    for(unsigned iD(0); iD != bounds_->ndim; ++iD)
+      coords_[iD] = _orig.coords_[iD];
   }
 
   Coordinate::~Coordinate()
@@ -28,29 +26,18 @@ namespace lattice {
   Coordinate&
   Coordinate::operator=(Coordinate const& _rhs)
   {
-    set(_rhs.ndim_, _rhs.coords_, _rhs.highs_);
+    bounds_ = _rhs.bounds_;
+    for(unsigned iD(0); iD != bounds_->ndim; ++iD)
+      coords_[iD] = _rhs.coords_[iD];
+
     return *this;
-  }
-
-  void
-  Coordinate::set(unsigned _ndim, int const* _coords, int const* _highs)
-  {
-    ndim_ = _ndim;
-
-    if(ndim_ > MAXDIM)
-      throw std::runtime_error("Too many dimensions");
-
-    for(unsigned iD(0); iD != ndim_; ++iD){
-      coords_[iD] = _coords[iD];
-      highs_[iD] = _highs[iD];
-    }
   }
 
   bool
   Coordinate::isValid() const
   {
-    for(unsigned iD(0); iD != ndim_; ++iD)
-      if(coords_[iD] < 0 || coords_[iD] > highs_[iD]) return false;
+    for(unsigned iD(0); iD != bounds_->ndim; ++iD)
+      if(coords_[iD] < 0 || coords_[iD] > bounds_->max[iD]) return false;
     return true;
   }
 
@@ -58,14 +45,11 @@ namespace lattice {
   Coordinate::getName() const
   {
     std::string name;
-    for(unsigned iD(0); iD != ndim_; ++iD){
-      if(coords_[iD] > 0) name += "p";
-      else if(coords_[iD] < 0) name += "m";
+    for(unsigned iD(0); iD != bounds_->ndim; ++iD){
       char val[100];
-      unsigned absval(std::abs(coords_[iD]));
-      std::sprintf(val, "%d", absval);
+      std::sprintf(val, "%d", coords_[iD]);
       name += val;
-      if(iD != ndim_ - 1) name += "_";
+      if(iD != bounds_->ndim - 1) name += "_";
     }
 
     return name;
@@ -75,15 +59,15 @@ namespace lattice {
   Coordinate::next()
   {
     unsigned iD(0);
-    for(; iD != ndim_ - 1; ++iD){
-      if(coords_[iD] < highs_[iD]){
+    for(; iD != bounds_->ndim - 1; ++iD){
+      if(coords_[iD] < bounds_->max[iD]){
         ++coords_[iD];
         break;
       }
       else
         coords_[iD] = 0;
     }
-    if(iD == ndim_ - 1) ++coords_[iD];
+    if(iD == bounds_->ndim - 1) ++coords_[iD];
 
     return *this;
   }
@@ -92,15 +76,15 @@ namespace lattice {
   Coordinate::prev()
   {
     unsigned iD(0);
-    for(; iD != ndim_ - 1; ++iD){
+    for(; iD != bounds_->ndim - 1; ++iD){
       if(coords_[iD] > 0){
         --coords_[iD];
         break;
       }
       else
-        coords_[iD] = highs_[iD];
+        coords_[iD] = bounds_->max[iD];
     }
-    if(iD == ndim_ - 1) --coords_[iD];
+    if(iD == bounds_->ndim - 1) --coords_[iD];
 
     return *this;
   }
@@ -156,16 +140,16 @@ namespace lattice {
   bool
   Coordinate::atHighEdge(unsigned _iD) const
   {
-    return coords_[_iD] == highs_[_iD];
+    return coords_[_iD] == bounds_->max[_iD];
   }
 
   bool
   Coordinate::operator<(Coordinate const& _rhs) const
   {
-    if(ndim_ != _rhs.ndim_)
+    if(bounds_->ndim != _rhs.bounds_->ndim)
       throw std::runtime_error("Comparison between incompatible coordinates");
 
-    unsigned iD(ndim_ - 1);
+    unsigned iD(bounds_->ndim - 1);
     while(true){
       if(coords_[iD] < _rhs.coords_[iD]) return true;
       if(coords_[iD] > _rhs.coords_[iD]) return false;
@@ -179,10 +163,10 @@ namespace lattice {
   bool
   Coordinate::operator==(Coordinate const& _rhs) const
   {
-    if(ndim_ != _rhs.ndim_)
+    if(bounds_->ndim != _rhs.bounds_->ndim)
       throw std::runtime_error("Comparison between incompatible coordinates");
 
-    for(unsigned iD(0); iD != ndim_; ++iD)
+    for(unsigned iD(0); iD != bounds_->ndim; ++iD)
       if(coords_[iD] != _rhs.coords_[iD]) return false;
 
     return true;

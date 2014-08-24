@@ -10,6 +10,8 @@ namespace lattice {
     Field(unsigned, unsigned, unsigned, double);
     ~Field();
 
+    unsigned getNDim() const { return nSpatial_ + 1; }
+
   private:
     unsigned nSpatial_;
   };

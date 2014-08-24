@@ -3,20 +3,26 @@
 
 #include <string>
 
+#include <map>
+#include <set>
+
 namespace lattice {
+
+  unsigned const MAXDIM(4);
+
+  struct Bounds {
+    Bounds() : ndim(0) {}
+    unsigned ndim;
+    int max[MAXDIM];
+  };
 
   class Coordinate {
   public:
-    static unsigned const MAXDIM = 4;
-
-    Coordinate();
-    Coordinate(unsigned, int const*, int const*);
+    Coordinate(Bounds const&);
     Coordinate(Coordinate const&);
     ~Coordinate();
 
     Coordinate& operator=(Coordinate const&);
-
-    void set(unsigned, int const*, int const*);
 
     bool isValid() const;
 
@@ -39,12 +45,17 @@ namespace lattice {
 
     bool operator<(Coordinate const&) const;
     bool operator==(Coordinate const&) const;
+    bool operator!=(Coordinate const& _rhs) const { return !operator==(_rhs); }
 
   private:
-    unsigned ndim_;
+    Bounds const* bounds_;
     int coords_[MAXDIM];
-    int highs_[MAXDIM];
   };
+
+  typedef std::map<Coordinate, double> ValueMap;
+  typedef std::map<Coordinate, double>::const_iterator VMItr;
+  typedef std::set<Coordinate> CoordSet;
+  typedef std::set<Coordinate>::const_iterator CSIter;
 
 }
 

@@ -15,7 +15,10 @@ namespace lattice {
     virtual ~ActionBase();
 
     FieldBase* getObj() const { return obj_; }
-    virtual double eval() const = 0;
+
+    virtual double dS(Coordinate const&, bool = false) const = 0;
+    virtual double S() const;
+    virtual double trialDeltaS() const;
 
     virtual void setParameter(unsigned, double) {}
 
@@ -67,7 +70,7 @@ namespace lattice {
   ActionBase* getAction(char const*, FieldBase*);
 }
 
-#define DEFINE_ACTION(TYPE) \
+#define DEFINE_LATTICE_ACTION(TYPE) \
   ActionFactoryStore::Factory<TYPE> lattice##TYPE##Factory(#TYPE)
 
 #endif

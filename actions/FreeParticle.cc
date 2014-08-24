@@ -1,4 +1,5 @@
 #include "../src/ParticleAction.h"
+#include "../src/Particle.h"
 
 namespace lattice {
   
@@ -7,7 +8,7 @@ namespace lattice {
     FreeParticle(FieldBase*);
     ~FreeParticle();
 
-    double eval() const;
+    double dS(Coordinate const&, bool = false) const;
   };
 
   FreeParticle::FreeParticle(FieldBase* _part) :
@@ -20,20 +21,15 @@ namespace lattice {
   }
 
   double
-  FreeParticle::eval() const
+  FreeParticle::dS(Coordinate const& _coord, bool _trial/* = false*/) const
   {
-    Particle const& particle(*static_cast<Particle const*>(obj_));
-    
     // S = sumT 0.5 * dxdt^2
-    double S(0.);
-    for(Coordinate coord(particle.getCoord()); coord.isValid(); coord.next()){
-      double dxdt(particle.getDerivative(coord, 0));
-      S += dxdt * dxdt;
-    }
 
-    return 0.5 * S;
+    Particle const& particle(*static_cast<Particle const*>(obj_));
+    double v(particle.getDerivative(_coord, _trial));
+    return 0.5 * v * v;
   }
 
-  DEFINE_ACTION(FreeParticle);
+  DEFINE_LATTICE_ACTION(FreeParticle);
 
 }
