@@ -4,14 +4,17 @@
 
 namespace lattice {
 
-  FieldBase::FieldBase() :
+  FieldBase::FieldBase(unsigned _nT, unsigned _nX, double _dxdt) :
+    nT_(_nT),
+    nX_(_nX),
+    dxdt_(_dxdt),
     values_(),
     derivatives_(),
     trialValues_(),
     trialDerivatives_(),
+    firstCoord_(),
     fixedPoints_()
   {
-    std::fill_n(scaleInv_, Coordinate::MAXDIM, 1.);
   }
 
   FieldBase::~FieldBase()
@@ -25,7 +28,7 @@ namespace lattice {
     for(unsigned iD(0); iD != derivatives_.size(); ++iD)
       derivatives_[iD].clear();
     
-    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next()){
+    for(Coordinate coord(firstCoord_); coord.isValid(); coord.next()){
       values_[coord] = 0.;
       for(unsigned iD(0); iD != derivatives_.size(); ++iD)
         derivatives_[iD][coord] = 0.;
@@ -41,12 +44,12 @@ namespace lattice {
   {
     clearTrial();
 
-    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next())
+    for(Coordinate coord(firstCoord_); coord.isValid(); coord.next())
       if(!isFixed(coord)) values_[coord] = _rand.Uniform(-_df, _df);
 
-    for(Coordinate coord(getCoord(0)); coord.isValid(); coord.next()){
+    for(Coordinate coord(firstCoord_); coord.isValid(); coord.next()){
       for(unsigned iD(0); iD != derivatives_.size(); ++iD)
-        derivatives_[iD][coord] = calculateDerivative_(coord, iD, scaleInv_[iD]);
+        derivatives_[iD][coord] = calculateDerivative_(coord, iD);
     }
   }
 
@@ -58,7 +61,7 @@ namespace lattice {
       Coordinate coord(_coord);
       coord.move(iD, -1);
       for(unsigned iX(0); iX != 3; ++iX){
-        trialDerivatives_[iD][coord] = calculateDerivative_(coord, iD, scaleInv_[iD]);
+        trialDerivatives_[iD][coord] = calculateDerivative_(coord, iD);
         coord.move(iD, +1);
       }
     }
@@ -119,24 +122,30 @@ namespace lattice {
   }
 
   double
-  FieldBase::calculateDerivative_(Coordinate const& _coord, unsigned _iD, double _dxinv) const
+  FieldBase::calculateDerivative_(Coordinate const& _coord, unsigned _iD) const
   {
+    double deriv(0.);
+    
     Coordinate coord(_coord);
     if(coord.atLowEdge(_iD)){
       double v(getVal(coord));
       double vplus(getVal(coord.move(_iD, 1)));
-      return (vplus - v) * _dxinv;
+      deriv = (vplus - v);
     }
     else if(coord.atHighEdge(_iD)){
       double v(getVal(coord));
       double vminus(getVal(coord.move(_iD, -1)));
-      return (v - vminus) * _dxinv;
+      deriv = (v - vminus);
     }
     else{
       double vplus(getVal(coord.move(_iD, 1)));
       double vminus(getVal(coord.move(_iD, -2)));
-      return (vplus - vminus) * 0.5 * _dxinv;
+      deriv = (vplus - vminus) * 0.5;
     }
+
+    if(_iD == 0) deriv *= dxdt_;
+
+    return deriv;
   }
 
 }

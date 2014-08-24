@@ -9,11 +9,14 @@ namespace lattice {
   public:
     static unsigned const MAXDIM = 4;
 
-    Coordinate(unsigned, int*, int*, int*);
+    Coordinate();
+    Coordinate(unsigned, int const*, int const*);
     Coordinate(Coordinate const&);
     ~Coordinate();
 
     Coordinate& operator=(Coordinate const&);
+
+    void set(unsigned, int const*, int const*);
 
     bool isValid() const;
 
@@ -40,7 +43,6 @@ namespace lattice {
   private:
     unsigned ndim_;
     int coords_[MAXDIM];
-    int lows_[MAXDIM];
     int highs_[MAXDIM];
   };
 

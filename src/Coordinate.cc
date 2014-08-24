@@ -5,52 +5,52 @@
 #include <cstdio>
 
 namespace lattice {
-  
-  Coordinate::Coordinate(unsigned _ndim, int* _coords, int* _lows, int* _highs) :
-    ndim_(_ndim)
+
+  Coordinate::Coordinate()
   {
+    set(0, 0, 0);
+  }
+  
+  Coordinate::Coordinate(unsigned _ndim, int const* _coords, int const* _highs)
+  {
+    set(_ndim, _coords, _highs);
+  }
+
+  Coordinate::Coordinate(Coordinate const& _orig)
+  {
+    set(_orig.ndim_, _orig.coords_, _orig.highs_);
+  }
+
+  Coordinate::~Coordinate()
+  {
+  }
+
+  Coordinate&
+  Coordinate::operator=(Coordinate const& _rhs)
+  {
+    set(_rhs.ndim_, _rhs.coords_, _rhs.highs_);
+    return *this;
+  }
+
+  void
+  Coordinate::set(unsigned _ndim, int const* _coords, int const* _highs)
+  {
+    ndim_ = _ndim;
+
     if(ndim_ > MAXDIM)
       throw std::runtime_error("Too many dimensions");
 
     for(unsigned iD(0); iD != ndim_; ++iD){
       coords_[iD] = _coords[iD];
-      lows_[iD] = _lows[iD];
       highs_[iD] = _highs[iD];
     }
-  }
-
-  Coordinate::Coordinate(Coordinate const& _orig) :
-    ndim_(_orig.ndim_)
-  {
-    for(unsigned iD(0); iD != ndim_; ++iD){
-      coords_[iD] = _orig.coords_[iD];
-      lows_[iD] = _orig.lows_[iD];
-      highs_[iD] = _orig.highs_[iD];
-    }
-  }
-
-  Coordinate::~Coordinate()
-  {}
-
-  Coordinate&
-  Coordinate::operator=(Coordinate const& _rhs)
-  {
-    ndim_ = _rhs.ndim_;
-
-    for(unsigned iD(0); iD != ndim_; ++iD){
-      coords_[iD] = _rhs.coords_[iD];
-      lows_[iD] = _rhs.lows_[iD];
-      highs_[iD] = _rhs.highs_[iD];
-    }
-
-    return *this;
   }
 
   bool
   Coordinate::isValid() const
   {
     for(unsigned iD(0); iD != ndim_; ++iD)
-      if(coords_[iD] < lows_[iD] || coords_[iD] > highs_[iD]) return false;
+      if(coords_[iD] < 0 || coords_[iD] > highs_[iD]) return false;
     return true;
   }
 
@@ -81,7 +81,7 @@ namespace lattice {
         break;
       }
       else
-        coords_[iD] = lows_[iD];
+        coords_[iD] = 0;
     }
     if(iD == ndim_ - 1) ++coords_[iD];
 
@@ -93,7 +93,7 @@ namespace lattice {
   {
     unsigned iD(0);
     for(; iD != ndim_ - 1; ++iD){
-      if(coords_[iD] > lows_[iD]){
+      if(coords_[iD] > 0){
         --coords_[iD];
         break;
       }
@@ -150,7 +150,7 @@ namespace lattice {
   bool
   Coordinate::atLowEdge(unsigned _iD) const
   {
-    return coords_[_iD] == lows_[_iD];
+    return coords_[_iD] == 0;
   }
 
   bool

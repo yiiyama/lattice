@@ -28,12 +28,14 @@ namespace lattice {
   double
   HarmonicOscillator::eval() const
   {
+    Particle const& particle(*static_cast<Particle const*>(obj_));
+    
     // S = sumT [0.5 * dxdt^2 + 0.5 * omega^2 x^2]
     double S(0.);
-    for(Coordinate coord(particle_->getCoord(0)); coord.isValid(); coord.next()){
-      double omegaX(particle_->getVal(coord) * omegaDt_ * particle_->getScaleInv(0));
+    for(Coordinate coord(particle.getCoord()); coord.isValid(); coord.next()){
+      double omegaX(particle.getVal(coord) * omegaDt_ * particle.getDxdt());
       S += omegaX * omegaX;
-      double dxdt(particle_->getDerivative(coord, 0));
+      double dxdt(particle.getDerivative(coord, 0));
       S += dxdt * dxdt;
     }
 

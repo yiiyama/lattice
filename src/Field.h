@@ -7,8 +7,11 @@ namespace lattice {
 
   class Field : public FieldBase {
   public:
-    Field(unsigned, unsigned, unsigned);
+    Field(unsigned, unsigned, unsigned, double);
     ~Field();
+
+  private:
+    unsigned nSpatial_;
   };
 
 }

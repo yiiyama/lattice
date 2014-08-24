@@ -12,7 +12,7 @@ namespace lattice {
 
   class FieldBase {
   public:
-    FieldBase();
+    FieldBase(unsigned, unsigned, double);
     virtual ~FieldBase();
 
     void initialize();
@@ -27,11 +27,11 @@ namespace lattice {
     virtual double getVal(Coordinate const&) const;
     virtual double getDerivative(Coordinate const&, unsigned) const;
 
-    virtual Coordinate getCoord(unsigned) const = 0;
-    virtual Coordinate* getCoordObject(unsigned _idx) const { return new Coordinate(getCoord(_idx)); }
+    virtual Coordinate const& getCoord() const { return firstCoord_; }
+    virtual Coordinate* getCoordObject() const { return new Coordinate(firstCoord_); }
     bool isFixed(Coordinate const& _coord) const { return fixedPoints_.find(_coord) != fixedPoints_.end(); }
 
-    double getScaleInv(unsigned _iD) const { return scaleInv_[_iD]; }
+    double getDxdt() const { return dxdt_; }
 
     typedef std::map<Coordinate, double> ValueMap;
     typedef std::map<Coordinate, double>::const_iterator VMItr;
@@ -41,15 +41,19 @@ namespace lattice {
   protected:
     double calculateDerivative_(Coordinate const&, unsigned, double) const;
 
+    unsigned nT_;
+    unsigned nX_;
+    double dxdt_;
+
     ValueMap values_;
     std::vector<ValueMap> derivatives_;
 
     ValueMap trialValues_;
     std::vector<ValueMap> trialDerivatives_;
 
-    CoordSet fixedPoints_;
+    Coordinate firstCoord_;
 
-    double scaleInv_[Coordinate::MAXDIM];
+    CoordSet fixedPoints_;
   };
 
 }

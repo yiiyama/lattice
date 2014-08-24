@@ -21,11 +21,11 @@ namespace lattice {
       fvalues_()
     {
       configurations_->Branch("L", &Lvalue_, "L/D");
-      for(Coordinate coord(L_->getObj()->getCoord(0)); coord.isValid(); coord.next())
+      for(Coordinate coord(L_->getObj()->getCoord()); coord.isValid(); coord.next())
         fvalues_.push_back(0.);
 
       unsigned iF(0);
-      for(Coordinate coord(L_->getObj()->getCoord(0)); coord.isValid(); coord.next()){
+      for(Coordinate coord(L_->getObj()->getCoord()); coord.isValid(); coord.next()){
         std::string name(coord.getName());
         configurations_->Branch(name.c_str(), &(fvalues_[iF++]), (name + "/D").c_str());
       }
@@ -40,7 +40,7 @@ namespace lattice {
       Lvalue_ = L_->eval();
       FieldBase const* obj(L_->getObj());
       unsigned iX(0);
-      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); coord.next())
+      for(Coordinate coord(obj->getCoord()); coord.isValid(); coord.next())
         fvalues_[iX++] = obj->getVal(coord);
 
       configurations_->Fill();
@@ -103,7 +103,7 @@ namespace lattice {
     for(unsigned iSweep(0); iSweep != nSweeps_; ++iSweep){
       if(iSweep % 1000 == 0) (std::cout << "\r" << iSweep).flush();
       
-      for(Coordinate coord(obj->getCoord(0)); coord.isValid(); coord.next()){
+      for(Coordinate coord(obj->getCoord()); coord.isValid(); coord.next()){
         if(obj->isFixed(coord)) continue;
         
         if(thermalized) ++nTrial;

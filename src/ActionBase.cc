@@ -5,11 +5,15 @@ namespace lattice {
   ActionBase::ActionBase(FieldBase* _obj) :
     obj_(_obj)
   {
+    if(!obj_)
+      throw std::runtime_error("Null or incompatible object passed to Action");
+
     obj_->initialize();
   }
 
   ActionBase::~ActionBase()
-  {}
+  {
+  }
 
   ActionFactoryStore* ActionFactoryStore::singleton_(0);
 

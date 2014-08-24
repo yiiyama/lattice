@@ -22,10 +22,12 @@ namespace lattice {
   double
   FreeParticle::eval() const
   {
+    Particle const& particle(*static_cast<Particle const*>(obj_));
+    
     // S = sumT 0.5 * dxdt^2
     double S(0.);
-    for(Coordinate coord(particle_->getCoord(0)); coord.isValid(); coord.next()){
-      double dxdt(particle_->getDerivative(coord, 0));
+    for(Coordinate coord(particle.getCoord()); coord.isValid(); coord.next()){
+      double dxdt(particle.getDerivative(coord, 0));
       S += dxdt * dxdt;
     }
 

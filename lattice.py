@@ -34,9 +34,9 @@ try:
     nT = int(config['nT'])
     nX = int(config['nX'])
     if spatialDim == 0:
-        field = ROOT.lattice.Particle(int(config['nT']), int(config['nX']), float(config['dt']))
+        field = ROOT.lattice.Particle(int(config['nT']), int(config['nX']), float(config['dxdt']))
     else:
-        field = ROOT.lattice.Field(int(config['dim']), int(config['nT']), int(config['nX']))
+        field = ROOT.lattice.Field(int(config['dim']), int(config['nT']), int(config['nX']), float(config['dxdt']))
 
     lagrangian = ROOT.lattice.getAction(config['lagrangian'], field)
     if 'parameters' in config:
@@ -48,7 +48,7 @@ try:
     if 'BC' in config:
         if config['BC'] == 'Vanish':
             if spatialDim == 0:
-                coord = field.getCoordObject(0)
+                coord = ROOT.lattice.Coordinate(field.getCoord())
                 for iX in range(nX):
                     coord.moveTo(0, iX)
                     field.setBoundaryCondition(coord, 0.)
@@ -57,7 +57,7 @@ try:
 
             else:
                 for iD in range(1 + spatialDim):
-                    coord = field.getCoordObject(0)
+                    coord = ROOT.lattice.Coordinate(field.getCoord())
                     while coord.isValid():
                         if coord[iD] == 0 or coord[iD] == nX - 1:
                             field.setBoundaryCondition(coord, 0.)
@@ -67,7 +67,7 @@ try:
         else:
             # form '(t,x,..):val '
             conds = config['BC'].split()
-            coord = field.getCoordObject(0)
+            coord = ROOT.lattice.Coordinate(field.getCoord())
             for cond in conds:
                 coordt = eval(cond.partition(':')[0])
                 coord.moveTo(*coordt)

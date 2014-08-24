@@ -13,12 +13,6 @@ namespace lattice {
     ~Particle();
 
     double getDerivative(Coordinate const&, unsigned) const;
-
-    Coordinate getCoord(unsigned) const;
-
-  private:
-    unsigned nT_;
-    unsigned nD_;
   };
 
 }

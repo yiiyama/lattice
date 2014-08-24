@@ -2,7 +2,6 @@
 #define ParticleAction_h
 
 #include "ActionBase.h"
-#include "Particle.h"
 
 namespace lattice {
 
@@ -10,9 +9,6 @@ namespace lattice {
   public:
     ParticleAction(FieldBase*);
     ~ParticleAction();
-
-  protected:
-    Particle* particle_;
   };
 
 }
